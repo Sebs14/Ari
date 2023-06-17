@@ -10,8 +10,8 @@ enum Types {
 }
 
 export type Inputs = {
-  frase: string;
-  delimitador: string;
+  secret: string;
+  separator: string;
   type: Types;
   origen: FileList;
   destino: FileList;
@@ -60,8 +60,8 @@ export default function Home() {
     const formData = new FormData();
 
     formData.append("file", data.origen[0]);
-    formData.append("frase", data.frase);
-    formData.append("delimitador", data.delimitador);
+    formData.append("secret", data.secret);
+    formData.append("separator", data.separator);
 
     try {
       const response = await axios.post(url, formData);
@@ -302,12 +302,12 @@ export default function Home() {
           <div className="flex flex-col gap-2 border-r-4 p-2 justify-center">
             <label>Escribe una frase</label>
             <input
-              id="frase"
+              id="secret"
               className="bg-ari-gray p-2 rounded border border-solid border-ari-black w-full"
               placeholder="Escribe una frase"
-              {...register("frase", { required: true })}
+              {...register("secret", { required: true })}
             />
-            {errors.frase && errors.frase.type === "required" && (
+            {errors.secret && errors.secret.type === "required" && (
               <span role="alert" className="pt-1 text-red-500">
                 Campo requerido
               </span>
@@ -316,12 +316,12 @@ export default function Home() {
           <div className="flex flex-col gap-2 border-r-4 p-2 justify-center">
             <label>Escribe el delimitador a usar</label>
             <input
-              id="delimitador"
+              id="separator"
               className="bg-ari-gray p-2 rounded border border-solid border-ari-black w-full"
               placeholder="Escribe un delimitador"
-              {...register("delimitador", { required: true })}
+              {...register("separator", { required: true })}
             />
-            {errors.delimitador && errors.delimitador.type === "required" && (
+            {errors.separator && errors.separator.type === "required" && (
               <span role="alert" className="pt-1 text-red-500">
                 Campo requerido
               </span>
