@@ -65,15 +65,35 @@ export default function Home() {
 
     try {
       const response = await axios.post(url, formData);
-
-      if (response.status !== 200) {
+      console.log({response: response.data});
+      
+      if (response.status >= 400) {
         throw new Error();
+      }
+
+      if(toFileType === Types.JSON){
+        const jsonOne = response.data[0]
+      
+
+        if (response.status >= 400) {
+          throw new Error();
+        }
+
+        const dotIndex = data.origen[0].name.indexOf(".");
+        setDestinoName(data.origen[0].name.substring(0, dotIndex));
+
+        const file = await new Blob([JSON.stringify(response.data)])
+        setDestinoFile(file);
+
+        const text = await file.text();
+        setDestinoText(text);
+        return
       }
 
       const dotIndex = data.origen[0].name.indexOf(".");
       setDestinoName(data.origen[0].name.substring(0, dotIndex));
 
-      const file = await response.blob();
+      const file = await new Blob([response.data])
       setDestinoFile(file);
 
       const text = await file.text();
@@ -108,11 +128,17 @@ export default function Home() {
 
     const reader = new FileReader();
 
-    reader.onload = () => {
-      const text = reader.result;
-      if (typeof text === "string") setOrigenText(text);
-    };
-    reader.readAsText(file);
+    try{
+      reader.onload = () => {
+        const text = reader.result;
+        if (typeof text === "string") setOrigenText(text);
+      };
+      reader.readAsText(file);
+
+    } catch {
+      
+    }
+
   };
 
   // // Función para leer el archivo de texto
