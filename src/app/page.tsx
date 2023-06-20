@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
+import { faDownload, faFileImport } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 enum Types {
   XML = "XML",
@@ -24,6 +26,10 @@ export default function Home() {
   const [destinoText, setDestinoText] = useState<string>("");
   const [destinoType, setDestinoType] = useState<Types>();
   const [destinoName, setDestinoName] = useState<string>("destino");
+  const [disableTxt, setDisableTxt] = useState<boolean>(false);
+  const [disableJson, setDisableJson] = useState<boolean>(false);
+  const [disableXml, setDisableXml] = useState<boolean>(false);
+
 
   const {
     register,
@@ -65,8 +71,6 @@ export default function Home() {
 
     try {
       const response = await axios.post(url, formData);
-      console.log({response: response.data});
-      
       if (response.status >= 400) {
         throw new Error();
       }
@@ -127,6 +131,22 @@ export default function Home() {
     const file = e.target.files[0];
 
     const reader = new FileReader();
+
+    console.log(file.type)
+
+    if(file.type === "text/plain"){
+      setDisableTxt(true)
+      setDisableJson(false)
+      setDisableXml(false)
+    }else if(file.type === "text/xml"){
+      setDisableTxt(false)
+      setDisableXml(true)
+      setDisableJson(true)
+    }else{
+      setDisableTxt(false)
+      setDisableJson(true)
+      setDisableXml(true)
+    }
 
     try{
       reader.onload = () => {
@@ -310,7 +330,7 @@ export default function Home() {
         Convertidor de archivos
       </h1>
       <form className="flex flex-col gap-10" onSubmit={handleSubmit(onSubmit)}>
-        <div className=" grid grid-cols-4 w-full justify-between items-end gap-20">
+        <div className=" grid grid-cols-3 w-full justify-between items-center gap-20">
           <div className="flex flex-col gap-2 border-r-4 p-2 justify-center">
             <label>Seleccione un archivo archivo .txt .xml .json</label>
             <input
@@ -318,14 +338,14 @@ export default function Home() {
             file:rounded-full file:border-0
             file:text-md file:font-semibold  file:text-white
             file:bg-gradient-to-r file:from-blue-600 file:to-amber-600
-            hover:file:cursor-pointer hover:file:opacity-80"
+            hover:file:cursor-pointer hover:file:opacity-80 transform hover:scale-110 duration-300"
               type="file"
               id="origen"
               {...register("origen")}
               onChange={handleCambioDeOrigen}
             />
           </div>
-          <div className="flex flex-col gap-2 border-r-4 p-2 justify-center">
+          <div className="flex flex-col gap-4 border-r-4 p-2 justify-center">
             <label>Escribe una frase</label>
             <input
               id="secret"
@@ -338,8 +358,6 @@ export default function Home() {
                 Campo requerido
               </span>
             )}
-          </div>
-          <div className="flex flex-col gap-2 border-r-4 p-2 justify-center">
             <label>Escribe el delimitador a usar</label>
             <input
               id="separator"
@@ -363,9 +381,9 @@ export default function Home() {
               <option value="selecciona un campo" disabled hidden>
                 selecciona un campo
               </option>
-              <option value="XML">.xml</option>
-              <option value="JSON">.json</option>
-              <option value="TXT">.txt</option>
+              <option className={disableXml === true ? "hidden" : "text-start"} value="XML">.xml</option>
+              <option className={disableJson === true ? "hidden" : "text-start"} value="JSON">.json</option>
+              <option className={disableTxt === true ? "hidden" : "text-start "} value="TXT">.txt</option>
             </select>
             {errors.type && errors.type.type === "required" && (
               <span role="alert" className="pt-1 text-red-500">
@@ -374,14 +392,22 @@ export default function Home() {
             )}
           </div>
         </div>
-        <button
-          type="button"
-          className="bg-ari-gray rounded border border-solid border-ari-black w-fit h-[30.8px] px-2"
-          onClick={downloadFile}
-          disabled={isDownloading}
-        >
-          Descargar Documento
-        </button>
+        <div className="flex  items-center justify-around">
+          <button
+            type="button"
+            className="bg-ari-gray rounded border border-solid p-2 border-ari-black w-fit w-1/4 text-center hover:bg-black/10 transform hover:scale-110 duration-300"
+            onClick={downloadFile}
+            disabled={isDownloading}
+          >
+            <FontAwesomeIcon icon={faDownload} className="mr-2" />
+            Descargar Documento
+          </button>
+          <div className="flex w-1/4">
+          <button className="bg-ari-gray p-2 rounded border border-solid text-center w-full border-ari-black hover:bg-black/10 transform hover:scale-110 duration-300 " type="submit">
+            <FontAwesomeIcon icon={faFileImport}/> Convertir Documento
+            </button>
+          </div>
+        </div>
         <div className="font-rubik">
           <label>Previsualización de arhivo cargado</label>
           <textarea
@@ -398,10 +424,7 @@ export default function Home() {
             readOnly
           />
         </div>
-        <input
-          className="bg-ari-gray p-2 rounded border border-solid border-ari-black"
-          type="submit"
-        />
+        
       </form>
     </main>
   );
